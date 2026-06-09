@@ -1,10 +1,15 @@
 #!/bin/bash
 
-
 if [[ -z $pnetcdf_therock_version ]]; then
     echo "Error: PnetCDF version name has not been set."
     exit 1
 fi
+
+if [[ -z $hdf5_therock_version ]]; then
+        echo "Error: HDF5 version name has not been set, needed for the pnetcdf module file."
+        exit 1
+fi
+
 INSTALL_DIR="${BASE_PREFIX}/pnetcdf/${pnetcdf_therock_version}-${version_name}"
 if [[ -z $fftw_therock_version ]]; then
     echo "Error: FFTW version name has not been set."
@@ -41,6 +46,8 @@ echo "whatis(\"Description: High-performance data management and storage suite\"
 echo "whatis(\"URL: https://www.hdfgroup.org/solutions/hdf5/\")"         >> $MODULE_FILE
 echo ""                                                                  >> $MODULE_FILE
 echo "local base = \"${INSTALL_DIR}\""                                   >> $MODULE_FILE
+echo ""                                                                  >> $MODULE_FILE
+echo "depends_on(\"hdf5-parallel/${hdf5_therock_version}\")"             >> $MODULE_FILE
 echo ""                                                                  >> $MODULE_FILE
 echo "prepend_path(\"LD_LIBRARY_PATH\", pathJoin(base, \"lib\"))"        >> $MODULE_FILE
 echo "prepend_path(\"LIBRARY_PATH\", pathJoin(base, \"lib\"))"           >> $MODULE_FILE

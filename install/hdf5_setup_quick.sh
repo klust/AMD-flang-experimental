@@ -5,6 +5,11 @@ if [[ -z $hdf5_therock_version ]]; then
         exit 1
 fi
 
+if [[ -z $mpich_therock_version ]]; then
+        echo "Error: MPICH version name has not been set, needed to create the hdf5-parallel module."
+        exit 1
+fi
+
 INSTALL_DIR="${BASE_PREFIX}/hdf5-parallel/${hdf5_therock_version}-${version_name}"
 mkdir -p ${INSTALL_DIR}
 if [[ $? -ne 0 ]]; then
@@ -65,6 +70,8 @@ echo "whatis(\"Description: High-performance data management and storage suite\"
 echo "whatis(\"URL: https://www.hdfgroup.org/solutions/hdf5/\")"         >> $MODULE_FILE
 echo ""                                                                  >> $MODULE_FILE
 echo "local base = \"${INSTALL_DIR}\""                                   >> $MODULE_FILE
+echo ""                                                                  >> $MODULE_FILE
+echo "depends_on(\"mpich/${mpich_therock_version}\")"                    >> $MODULE_FILE
 echo ""                                                                  >> $MODULE_FILE
 echo "prepend_path(\"LD_LIBRARY_PATH\", pathJoin(base, \"lib\"))"        >> $MODULE_FILE
 echo "prepend_path(\"LIBRARY_PATH\", pathJoin(base, \"lib\"))"           >> $MODULE_FILE

@@ -1,10 +1,15 @@
 #!/bin/bash
 
-
 if [[ -z $netcdf_fortran_therock_version ]]; then
         echo "Error: NetCDF Fortran version name has not been set."
         exit 1
 fi
+
+if [[ -z $netcdf_c_therock_version ]]; then
+        echo "Error: NetCDF C version name has not been set, needed for the netcdf_fortran module file."
+        exit 1
+fi
+
 INSTALL_DIR="${BASE_PREFIX}/netcdf_fortran/${netcdf_fortran_therock_version}-${version_name}"
 mkdir -p ${INSTALL_DIR}
 if [[ $? -ne 0 ]]; then
@@ -25,7 +30,7 @@ if [[ $? -ne 0 ]]; then
         exit 1
 fi
 
-CONFIG_OPTIONS="  --prefix=${INSTALL_DIR} --enable-shared --disable-static --enable--disable-examples --disable-testsets --disable-byterange "
+CONFIG_OPTIONS="  --prefix=${INSTALL_DIR} --enable-shared --disable-static --disable-examples --disable-testsets "
 CC=mpicc FC=mpifort F77=mpif77 CXX=mpicxx CPPFLAGS=-I${HDF5_DIR}/include LDFLAGS=-L${HDF5_DIR}/lib ./configure ${CONFIG_OPTIONS}
 sed -i 's/wl=""/wl="-Wl,"/g;s/pic_flag=""/pic_flag=" -fPIC -DPIC"/g' libtool
 make -j12 && make install
@@ -40,6 +45,8 @@ echo "whatis(\"Description: High-performance data management and storage suite\"
 echo "whatis(\"URL: https://www.hdfgroup.org/solutions/hdf5/\")"         >> $MODULE_FILE
 echo ""                                                                  >> $MODULE_FILE
 echo "local base = \"${INSTALL_DIR}\""                                   >> $MODULE_FILE
+echo ""                                                                  >> $MODULE_FILE
+echo "depends_on(\"netcdf_c/${netcdf_c_therock_version}\")"              >> $MODULE_FILE
 echo ""                                                                  >> $MODULE_FILE
 echo "prepend_path(\"LD_LIBRARY_PATH\", pathJoin(base, \"lib\"))"        >> $MODULE_FILE
 echo "prepend_path(\"LIBRARY_PATH\", pathJoin(base, \"lib\"))"           >> $MODULE_FILE
