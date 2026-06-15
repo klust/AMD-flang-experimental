@@ -4,6 +4,12 @@ set -x
 umask 0022
 
 #export BASE_PREFIX=/opt/hlrs/testing/unsupported
+#
+# Compute BASE_PREFIX from the position of this script.
+# CACHE_DIR may be different now as it is always besides the install
+# directory. If this is not desired, add a line `cd -` after 
+# `export BASE_PREFIX=...` to undo the `cd` before that line.
+#
 cd "$(dirname $0)"
 export BASE_PREFIX="$(pwd)"
 export TMPDIR=/tmp
@@ -11,14 +17,6 @@ export CACHE_DIR="$(pwd)/../cache"
 mkdir -p $TMPDIR
 
 export THEROCK="therock-afar-23.2.1-gfx90a-7.13.0-7357b5084b.tar.bz2"
-
-export MPICH_VERSION='3.4a2'
-export HDF5_VERSION='1.14.6'
-export NETCDF_C_VERSION='4.9.3'
-export NETCDF_FORTRAN_VERSION='4.6.2'
-export PNETCDF_VERSION='1.14.1'
-export FFTW_VERSION='3.3.10'
-export LAPACK_VERSION='3.12.1'
 
 # GPU architecture (LLVM/AMDGPU target). Consumed by:
 #   - build.mpich-3.4a2.sh  (--with-hip-sm=${GPU_ARCH})
@@ -30,15 +28,16 @@ export LAPACK_VERSION='3.12.1'
 # filename ($THEROCK above). If you change GPU_ARCH you typically also need
 # a matching TheRock drop built for that target.
 export GPU_ARCH="gfx90a"
-export MPICH_RELEASE="mpich-$MPICH_VERSION.tar.gz"
-export HDF5_RELEASE="hdf5-$HDF5_VERSION.tar.gz"
-export NETCDF_C_RELEASE="netcdf-c-$NETCDF_C_VERSION.tar.gz"
-export NETCDF_FORTRAN_RELEASE="netcdf-fortran-$NETCDF_FORTRAN_VERSION.tar.gz"
-export PNETCDF_RELEASE="pnetcdf-$PNETCDF_VERSION.tar.gz"
-export FFTW_RELEASE="fftw-$FFTW_VERSION.tar.gz"
+export MPICH_RELEASE="mpich-3.4a2.tar.gz"
+export HDF5_RELEASE="hdf5-v1.14.6.tgz"
+export NETCDF_C_RELEASE="netcdf-c-4.9.3.tar.gz"
+export NETCDF_FORTRAN_RELEASE="netcdf-fortran-4.6.2.tar.gz"
+export PNETCDF_RELEASE="pnetcdf-1.14.1.tar.gz"
+export FFTW_RELEASE="fftw-3.3.10.tar.gz"
+export MPICH_RELEASE="mpich-3.4a2.tar.gz"
 export THRUST_RELEASE="thrust-4.0.0.tgz"
 export ROCPRIM_RELEASE="rocprim-4.0.0.tgz"
-export LAPACK_RELEASE="lapack-$LAPACK_VERSION.tar.gz"
+export LAPACK_RELEASE="v3.12.1.tar.gz"
 
 ###############################################################################
 # Component selection
