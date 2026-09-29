@@ -8,7 +8,7 @@ cd "$CACHE_DIR"
 #
 # Filenames as expected by install.therock.sh and copied from that script
 #
-export THEROCK="therock-afar-23.2.1-gfx90a-7.13.0-7357b5084b.tar.bz2"
+export THEROCK="therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2"
 export MPICH_RELEASE="mpich-3.4a2.tar.gz"
 export HDF5_RELEASE="hdf5-v1.14.6.tgz"
 export NETCDF_C_RELEASE="netcdf-c-4.9.3.tar.gz"

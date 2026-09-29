@@ -16,7 +16,7 @@ export TMPDIR=/tmp
 export CACHE_DIR="$(pwd)/../cache"
 mkdir -p $TMPDIR
 
-export THEROCK="therock-afar-23.2.1-gfx90a-7.13.0-7357b5084b.tar.bz2"
+export THEROCK="therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2"
 
 # GPU architecture (LLVM/AMDGPU target). Consumed by:
 #   - build.mpich-3.4a2.sh  (--with-hip-sm=${GPU_ARCH})
