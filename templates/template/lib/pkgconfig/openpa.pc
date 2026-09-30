@@ -1,0 +1,16 @@
+prefix=__MPICH_DEST_DIR__
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+therock_includedir=__MPICH_DEST_DIR__/include
+
+# Technically, the -lopa below isn't needed if you are only using the atomic
+# primitives (not the queue code) and you are not using mutex emulation.
+
+Name: OpenPA
+Description: Portable library for atomic operations
+Version: 1.0.3
+Libs: -L${libdir} -lopa
+Libs.private: -lpthread 
+Cflags: -I${therock_includedir} -I${includedir}
+
