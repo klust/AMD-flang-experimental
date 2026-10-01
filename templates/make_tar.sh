@@ -4,6 +4,6 @@
 # found on PATH. It will not expand symbolic links.
 cd $(dirname $0)
 
-tar -cf templates.tar template
+gtar -cf templates.tar template
 gzip -9 templates.tar
 mv templates.tar.gz ../downloads/templates.therock.tgz
