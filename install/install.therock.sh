@@ -19,7 +19,7 @@ mkdir -p $TMPDIR
 export THEROCK="therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2"
 
 # GPU architecture (LLVM/AMDGPU target). Consumed by:
-#   - build.mpich-3.4a2.sh  (--with-hip-sm=${GPU_ARCH})
+#   - build.mpich-4.3.1.sh  (--with-hip-sm=${GPU_ARCH})
 #   - rocm-libs.sh          (--offload-arch=${GPU_ARCH} in the cxxflags written
 #                            into the rocm-libs modulefile)
 # Override on the command line with -a|--arch <name>, e.g. gfx942 (MI300X),
@@ -28,16 +28,25 @@ export THEROCK="therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2"
 # filename ($THEROCK above). If you change GPU_ARCH you typically also need
 # a matching TheRock drop built for that target.
 export GPU_ARCH="gfx90a"
-export MPICH_RELEASE="mpich-3.4a2.tar.gz"
+export MPICH_RELEASE="mpich-4.3.1.tar.gz"
 export HDF5_RELEASE="hdf5-v1.14.6.tgz"
 export NETCDF_C_RELEASE="netcdf-c-4.9.3.tar.gz"
 export NETCDF_FORTRAN_RELEASE="netcdf-fortran-4.6.2.tar.gz"
 export PNETCDF_RELEASE="pnetcdf-1.14.1.tar.gz"
 export FFTW_RELEASE="fftw-3.3.10.tar.gz"
-export MPICH_RELEASE="mpich-3.4a2.tar.gz"
 export THRUST_RELEASE="thrust-4.0.0.tgz"
 export ROCPRIM_RELEASE="rocprim-4.0.0.tgz"
 export LAPACK_RELEASE="v3.12.1.tar.gz"
+
+# Detect versions
+export MPICH_VERSION="$(echo $MPICH_RELEASE | sed 's|mpich-\(.*\)\.tar.gz|\1|')"
+export HDF5_VERSION="$(echo $HDF5_RELEASE | sed 's|hdf5-v\(.*\)\.tgz|\1|')"
+export NETCDF_C_VERSION="$(echo $NETCDF_C_RELEASE | sed 's|netcdf-c-\(.*\)\.tar\.gz|\1|')"
+export NETCDF_FORTRAN_VERSION="$(echo $NETCDF_FORTRAN_RELEASE | sed 's|netcdf-fortran-\(.*\)\.tar\.gz|\1|')"
+export PNETCDF_VERSION="$(echo $PNETCDF_RELEASE | sed 's|pnetcdf-\(.*\)\.tar\.gz|\1|')"
+export FFTW_VERSION="$(echo $FFTW_RELEASE | sed 's|fftw-\(.*\)\.tar\.gz|\1|')"
+export LAPACK_VERSION="$(echo $LAPACK_RELEASE | sed 's|v\(.*\)\.tar\.gz|\1|')"
+
 
 ###############################################################################
 # Component selection
@@ -54,7 +63,7 @@ export LAPACK_RELEASE="v3.12.1.tar.gz"
 #
 # Available components (in build order):
 #   therock   - unpack TheRock drop and generate the therock modulefile
-#   mpich     - build MPICH 3.4a2 wrappers + libmpifort + module
+#   mpich     - build MPICH 4.3.1 wrappers + libmpifort + module
 #   hdf5      - build parallel HDF5 + module (produces HDF5_DIR)
 #   pnetcdf   - build PnetCDF + module (produces PNETCDF_DIR)
 #   netcdf_c  - build NetCDF-C + module (needs HDF5_DIR, pnetcdf)
@@ -258,7 +267,7 @@ if [[ -z $CRAY_MPICH_PREFIX ]]; then
 fi
 
 export MPICH_DIR_CCE=$CRAY_MPICH_PREFIX
-export ROCM_BASE_MODULE="rocm/6.3.4"
+export ROCM_BASE_MODULE="${ROCM_BASE_MODULE:-rocm/7.0.3}"
 
 module unload cray-mpich
 #module unload rocm
@@ -392,7 +401,7 @@ fi
 ### -------------------- mpich --------------------
 if is_selected mpich; then
     cd $wd
-    . ./build.mpich-3.4a2.sh
+    . ./build.mpich-${MPICH_VERSION}.sh
     if [ $? -ne 0 ]; then
         echo "Error: Failed to build MPICH."
         exit 1
