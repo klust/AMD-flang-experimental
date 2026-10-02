@@ -16,7 +16,9 @@ export TMPDIR=/tmp
 export CACHE_DIR="$(pwd)/../cache"
 mkdir -p $TMPDIR
 
-export THEROCK="therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2"
+# Load software versions. We use an external file to guarantee consistency between the
+# download script and the install script.
+source ${BASE_PREFIX}/source.set_versions.sh
 
 # GPU architecture (LLVM/AMDGPU target). Consumed by:
 #   - build.mpich-4.3.1.sh  (--with-hip-sm=${GPU_ARCH})
@@ -25,27 +27,9 @@ export THEROCK="therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2"
 # Override on the command line with -a|--arch <name>, e.g. gfx942 (MI300X),
 # gfx1100 (RDNA3 7900-class), gfx1151, etc.
 # Note: this is independent of the GPU arch baked into the TheRock drop
-# filename ($THEROCK above). If you change GPU_ARCH you typically also need
+# filename ($THEROCK above), if any. If you change GPU_ARCH you typically also need
 # a matching TheRock drop built for that target.
 export GPU_ARCH="gfx90a"
-export MPICH_RELEASE="mpich-4.3.1.tar.gz"
-export HDF5_RELEASE="hdf5-v1.14.6.tgz"
-export NETCDF_C_RELEASE="netcdf-c-4.9.3.tar.gz"
-export NETCDF_FORTRAN_RELEASE="netcdf-fortran-4.6.2.tar.gz"
-export PNETCDF_RELEASE="pnetcdf-1.14.1.tar.gz"
-export FFTW_RELEASE="fftw-3.3.10.tar.gz"
-export THRUST_RELEASE="thrust-4.0.0.tgz"
-export ROCPRIM_RELEASE="rocprim-4.0.0.tgz"
-export LAPACK_RELEASE="v3.12.1.tar.gz"
-
-# Detect versions
-export MPICH_VERSION="$(echo $MPICH_RELEASE | sed 's|mpich-\(.*\)\.tar.gz|\1|')"
-export HDF5_VERSION="$(echo $HDF5_RELEASE | sed 's|hdf5-v\(.*\)\.tgz|\1|')"
-export NETCDF_C_VERSION="$(echo $NETCDF_C_RELEASE | sed 's|netcdf-c-\(.*\)\.tar\.gz|\1|')"
-export NETCDF_FORTRAN_VERSION="$(echo $NETCDF_FORTRAN_RELEASE | sed 's|netcdf-fortran-\(.*\)\.tar\.gz|\1|')"
-export PNETCDF_VERSION="$(echo $PNETCDF_RELEASE | sed 's|pnetcdf-\(.*\)\.tar\.gz|\1|')"
-export FFTW_VERSION="$(echo $FFTW_RELEASE | sed 's|fftw-\(.*\)\.tar\.gz|\1|')"
-export LAPACK_VERSION="$(echo $LAPACK_RELEASE | sed 's|v\(.*\)\.tar\.gz|\1|')"
 
 
 ###############################################################################
@@ -261,19 +245,31 @@ if [[ -z $TMPDIR ]]; then
         exit 1
 fi
 
-if [[ -z $CRAY_MPICH_PREFIX ]]; then
-        echo "Error: CRAY_MPICH_PREFIX has not been set."
-        exit 1
+#if [[ -z $CRAY_MPICH_PREFIX ]]; then
+#        echo "Error: CRAY_MPICH_PREFIX has not been set."
+#        exit 1
+#fi
+if [ -n "$CRAY_MPICH_PREFIX" ]
+then 
+    export MPICH_DIR_CPE=$CRAY_MPICH_PREFIX
+    local work="${CRAY_MPICH_PREFIX#*/ofi/}"
+    export MPICH_SYSTEM_TYPE="${work%/*}"
+    echo "Using the $MPICH_SYSTEM_TYPE MPI files found in $MPICH_DIR_CPE."
+else
+    export MPICH_SYSTEM_TYPE=download
+    echo "Expecting $CACHE_DIR/cray-mpich-9.1.0-amd.tar to exist, with the necessary PrgEnv-amd MPI files."
 fi
-
-export MPICH_DIR_CCE=$CRAY_MPICH_PREFIX
 export ROCM_BASE_MODULE="${ROCM_BASE_MODULE:-rocm/7.0.3}"
+# Not really needed, we can just load libfabric?
+# export LIBFABRIC_MODULE=$(echo "$LOADEDMODULES:" | sed -e "s|.*libfabric/\([^:]*\):.*|libfabric/\1|")
 
-module unload cray-mpich
-#module unload rocm
-module unload cray-libsci
-module unload cce
-module unload craype
+#module unload cray-mpich
+##module unload rocm
+#module unload cray-libsci
+#module unload cce
+#module unload craype
+module purge
+module load libfabric
 
 ## set current working directory
 wd=$(pwd)
