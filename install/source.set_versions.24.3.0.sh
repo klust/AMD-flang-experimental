@@ -1,3 +1,9 @@
+# General settings
+#
+export ROCM_BASE_MODULE="${ROCM_BASE_MODULE:-rocm/7.0.3}"
+export THEROCK_SKIP_ARCH_CHECK=1 # Now have the multiarch files.
+export CRAY_MPICH_VERSION='9.1.0'
+
 #
 # Filenames as expected by install.therock.sh and copied from that script
 #

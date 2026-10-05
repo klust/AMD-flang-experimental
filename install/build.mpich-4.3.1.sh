@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -x
 
-mpich_so_version='12.5.0' # Version of the .so files installed with this MPIO version.
+MPICH_SO_VERSION="{$MPICH_SO_VERSION:-12.5.0}" # Version of the .so files installed with this MPI version.
 
 if [[ -z $mpich_therock_version ]]; then
         echo "Error: MPICH version name has not been set."
@@ -48,8 +48,8 @@ then
     fi
 fi
 cd ${TMPDIR}/tmp.therock/template/lmod/modulefiles/core
-if [[ ! -f  mpich-4.3.1.lua ]]; then
-        echo "Error: mpich-4.3.1.lua does not exist."
+if [[ ! -f  mpich-${MPICH_VERSION}.lua ]]; then
+        echo "Error: mpich-${MPICH_VERSION}.lua does not exist."
         exit 1
 fi
 
@@ -59,21 +59,21 @@ CRAY_MPICH_PREFIX=${mpich_dest_dir}
 #CRAY_MPICH_BASEDIR=$(dirname $MPICH_CCE)
 #CRAY_MPICH_ROOTDIR=$(dirname $CRAY_MPICH_BASEDIR)
 #CRAY_MPICH_VERSION=$(basename $CRAY_MPICH_ROOTDIR)
-CRAY_MPICH_VERSION='9.1.0'
+CRAY_MPICH_VERSION=${CRAY_MPICH_VERSION:-9.1.0}
 
-sed -i "s%__CRAY_MPICH_VER__%${CRAY_MPICH_VERSION}%g" mpich-4.3.1.lua
-sed -i "s%__CRAY_MPICH_VERSION__%${CRAY_MPICH_VERSION}%g" mpich-4.3.1.lua
-#sed -i "s%__CRAY_MPICH_ROOTDIR__%${CRAY_MPICH_ROOTDIR}%g" mpich-4.3.1.lua
-#sed -i "s%__CRAY_MPICH_BASEDIR__%${CRAY_MPICH_BASEDIR}%g" mpich-4.3.1.lua
-#sed -i "s%__CRAY_MPICH_DIR__%${MPICH_DIR_CCE}%g" mpich-4.3.1.lua
-#sed -i "s%__CRAY_MPICH_PREFIX__%${MPICH_DIR_CCE}%g" mpich-4.3.1.lua
-#sed -i "s%__MPICH_DIR__%${MPICH_DIR_CCE}%g" mpich-4.3.1.lua
-sed -i "s%__MPICH_DIR__%${mpich_dest_dir}%g" mpich-4.3.1.lua
-sed -i "s%__MPICH_DEST_DIR__%${mpich_dest_dir}%g" mpich-4.3.1.lua
-sed -i "s%__THEROCK_VERSION__%${version_name}%g" mpich-4.3.1.lua
-mv mpich-4.3.1.lua mpich-4.3.1-${version_name}.lua
+sed -i "s%__CRAY_MPICH_VER__%${CRAY_MPICH_VERSION}%g" mpich-${MPICH_VERSION}.lua
+sed -i "s%__CRAY_MPICH_VERSION__%${CRAY_MPICH_VERSION}%g" mpich-${MPICH_VERSION}.lua
+#sed -i "s%__CRAY_MPICH_ROOTDIR__%${CRAY_MPICH_ROOTDIR}%g" mpich-${MPICH_VERSION}.lua
+#sed -i "s%__CRAY_MPICH_BASEDIR__%${CRAY_MPICH_BASEDIR}%g" mpich-${MPICH_VERSION}.lua
+#sed -i "s%__CRAY_MPICH_DIR__%${MPICH_DIR_CCE}%g" mpich-${MPICH_VERSION}.lua
+#sed -i "s%__CRAY_MPICH_PREFIX__%${MPICH_DIR_CCE}%g" mpich-${MPICH_VERSION}.lua
+#sed -i "s%__MPICH_DIR__%${MPICH_DIR_CCE}%g" mpich-${MPICH_VERSION}.lua
+sed -i "s%__MPICH_DIR__%${mpich_dest_dir}%g" mpich-${MPICH_VERSION}.lua
+sed -i "s%__MPICH_DEST_DIR__%${mpich_dest_dir}%g" mpich-${MPICH_VERSION}.lua
+sed -i "s%__THEROCK_VERSION__%${version_name}%g" mpich-${MPICH_VERSION}.lua
+mv mpich-${MPICH_VERSION}.lua mpich-${MPICH_VERSION}-${version_name}.lua
 mkdir -p ${BASE_PREFIX}/modulefiles/${release_name}/mpich
-cp mpich-4.3.1-${version_name}.lua ${BASE_PREFIX}/modulefiles/${release_name}/mpich/${mpich_therock_version}.lua
+cp mpich-${MPICH_VERSION}-${version_name}.lua ${BASE_PREFIX}/modulefiles/${release_name}/mpich/${mpich_therock_version}.lua
 
 # For this version we don't use the wrappers from the template directory as we
 # copy all Cray MPICH files that are needed into the new MPI structure anyway.
@@ -97,14 +97,14 @@ cp mpich-4.3.1-${version_name}.lua ${BASE_PREFIX}/modulefiles/${release_name}/mp
 #export LD_LIBRARY_PATH=${mpich_dest_dir}/lib:$LD_LIBRARY_PATH
 
 mkdir -p ${TMPDIR}/tmp.therock/src && cd ${TMPDIR}/tmp.therock/src
-tar -xf $CACHE_DIR/mpich-4.3.1.tar.gz
+tar -xf $CACHE_DIR/${MPICH_RELEASE}
 if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to extract 'mpich-4.3.1.tar.gz'."
+        echo "Error: Failed to extract '${MPICH_RELEASE}'."
         exit 1
 fi
-cd ${TMPDIR}/tmp.therock/src/mpich-4.3.1
+cd ${TMPDIR}/tmp.therock/src/mpich-${MPICH_VERSION}
 if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to create directory '${TMPDIR}/tmp.therock/src/mpich-4.3.1'."
+        echo "Error: Failed to create directory '${TMPDIR}/tmp.therock/src/mpich-${MPICH_VERSION}'."
         exit 1
 fi
 
@@ -144,7 +144,7 @@ rm -rf *
 # src/pm/hydra subdir from the build and sidestepping the issue cleanly.
 # --without-slurm is kept as documentation/defence in depth; it has no effect
 # once no PM is built.
-#	--prefix=${TMPDIR}/tmp.therock/mpich-4.3.1 \
+#	--prefix=${TMPDIR}/tmp.therock/mpich-${MPICH_VERSION} \
 CFLAGS="-fPIC" \
 CXXFLAGS="-fPIC" \
 FCFLAGS="-fPIC" \
@@ -187,8 +187,8 @@ make install |& tee log.install.txt
 
 # Copy not needed anymore as this is where we install already.
 # Copy the files from our temporary installation that we need.
-#cp -r ${TMPDIR}/tmp.therock/mpich-4.3.1/include ${mpich_dest_dir}
-#mkdir -p ${mpich_dest_dir}/lib && cp -d ${TMPDIR}/tmp.therock/mpich-4.3.1/lib/libmpifort.* ${mpich_dest_dir}/lib
+#cp -r ${TMPDIR}/tmp.therock/mpich-${MPICH_VERSION}/include ${mpich_dest_dir}
+#mkdir -p ${mpich_dest_dir}/lib && cp -d ${TMPDIR}/tmp.therock/mpich-${MPICH_VERSION}/lib/libmpifort.* ${mpich_dest_dir}/lib
 chmod go+rx ${mpich_dest_dir}/bin/*
 
 # Overwrite with system MPI files
@@ -196,7 +196,7 @@ case "$MPICH_SYSTEM_TYPE" in
     amd)
         # Get the files from Cray MPICH that we need.
         cd ${mpich_dest_dir}/lib 
-        cp ${MPICH_DIR_CPE}/lib/libmpi_amd.so.12.0.0 ./libmpi.so.${mpich_so_version}
+        cp ${MPICH_DIR_CPE}/lib/libmpi_amd.so.12.0.0 ./libmpi.so.${MPICH_SO_VERSION}
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/libmpi_gtl_hsa.so.0.1.0 .
         mkdir -p pkgconfig
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/pkgconfig/cray-gtl-hsa.pc pkgconfig
@@ -205,16 +205,16 @@ case "$MPICH_SYSTEM_TYPE" in
         # Get the files from Cray MPICH that we need.
         #cd ${mpich_dest_dir}/lib && ln -sf ${MPICH_DIR_CCE}/lib/libmpi_cray.so ./libmpi.so.0
         cd ${mpich_dest_dir}/lib 
-        cp ${MPICH_DIR_CPE}/lib/libmpi_cray.so.12.0.0 ./libmpi.so.${mpich_so_version}
+        cp ${MPICH_DIR_CPE}/lib/libmpi_cray.so.12.0.0 ./libmpi.so.${MPICH_SO_VERSION}
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/libmpi_gtl_hsa.so.0.1.0 .
         mkdir -p pkgconfig
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/pkgconfig/cray-gtl-hsa.pc pkgconfig
         ;;
     download)
         cd ${mpich_dest_dir}
-        tar -xf $CACHE_DIR/cray-mpich-9.1.0-amd.tar
+        tar -xf $CACHE_DIR/cray-mpich-${CRAY_MPICH_VERSION}-amd.tar
         cd lib
-        mv libmpi_amd.so.12.0.0 libmpi.so.${mpich_so_version}
+        mv libmpi_amd.so.12.0.0 libmpi.so.${MPICH_SO_VERSION}
         ;;
     *)
         echo "Internal error: Unknown MPICH_SYSTEM_TYPE: $MPICH_SYSTEM_TYPE" >&2
@@ -223,12 +223,11 @@ case "$MPICH_SYSTEM_TYPE" in
 esac
 
 cd ${mpich_dest_dir}/lib 
-#ln -s libmpi.so.${mpich_so_version} libmpi.so.12
-#ln -s libmpi.so.${mpich_so_version} libmpi.so
+#ln -s libmpi.so.${MPICH_SO_VERSION} libmpi.so.12
+#ln -s libmpi.so.${MPICH_SO_VERSION} libmpi.so
 ln -s libmpi_gtl_hsa.so.0.1.0 libmpi_gtl_hsa.so.0
 ln -s libmpi_gtl_hsa.so.0.1.0 libmpi_gtl_hsa.so
 sed -e "s|prefix=.*|prefix=${mpich_dest_dir}|" -i pkgconfig/cray-gtl-hsa.pc
 
 
 #cd ${TMPDIR} && rm -rf ${TMPDIR}/tmp.therock
-
