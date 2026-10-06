@@ -12,6 +12,7 @@ mkdir -p /tmp/$USER
 
 cd /opt/cray/pe/mpich/$version/ofi/cray/$abi
 tar -cf /tmp/$USER/craylibs-$version.tar lib/libmpi_cray.so.12.0.0
+tar -rf /tmp/$USER/craylibs-$version.tar lib/libmpi.so.12.0.0
 cd -
 
 cd /opt/cray/pe/mpich/$version/gtl
