@@ -252,7 +252,7 @@ fi
 if [ -n "$CRAY_MPICH_PREFIX" ]
 then 
     export MPICH_DIR_CPE=$CRAY_MPICH_PREFIX
-    local work="${CRAY_MPICH_PREFIX#*/ofi/}"
+    work="${CRAY_MPICH_PREFIX#*/ofi/}"
     export MPICH_SYSTEM_TYPE="${work%/*}"
     echo "Using the $MPICH_SYSTEM_TYPE MPI files found in $MPICH_DIR_CPE."
 else

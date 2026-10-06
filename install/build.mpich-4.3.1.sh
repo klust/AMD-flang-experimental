@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -x
 
-MPICH_SO_VERSION="{$MPICH_SO_VERSION:-12.5.0}" # Version of the .so files installed with this MPI version.
+MPICH_SO_VERSION="${MPICH_SO_VERSION:-12.5.1}" # Version of the .so files installed with this MPI version.
 
 if [[ -z $mpich_therock_version ]]; then
         echo "Error: MPICH version name has not been set."
@@ -191,11 +191,12 @@ make install |& tee log.install.txt
 #mkdir -p ${mpich_dest_dir}/lib && cp -d ${TMPDIR}/tmp.therock/mpich-${MPICH_VERSION}/lib/libmpifort.* ${mpich_dest_dir}/lib
 chmod go+rx ${mpich_dest_dir}/bin/*
 
-# Overwrite with system MPI files
+# Overwrite with system MPI 
 case "$MPICH_SYSTEM_TYPE" in
     amd)
         # Get the files from Cray MPICH that we need.
-        cd ${mpich_dest_dir}/lib 
+        cd ${mpich_dest_dir}/lib
+        /bin/rm -f libmpi.so* libmpi.a
         cp ${MPICH_DIR_CPE}/lib/libmpi_amd.so.12.0.0 ./libmpi.so.${MPICH_SO_VERSION}
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/libmpi_gtl_hsa.so.0.1.0 .
         mkdir -p pkgconfig
@@ -205,16 +206,22 @@ case "$MPICH_SYSTEM_TYPE" in
         # Get the files from Cray MPICH that we need.
         #cd ${mpich_dest_dir}/lib && ln -sf ${MPICH_DIR_CCE}/lib/libmpi_cray.so ./libmpi.so.0
         cd ${mpich_dest_dir}/lib 
+        /bin/rm -f libmpi.so* libmpi.a
         cp ${MPICH_DIR_CPE}/lib/libmpi_cray.so.12.0.0 ./libmpi.so.${MPICH_SO_VERSION}
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/libmpi_gtl_hsa.so.0.1.0 .
         mkdir -p pkgconfig
         cp ${MPICH_DIR_CPE}/../../../gtl/lib/pkgconfig/cray-gtl-hsa.pc pkgconfig
         ;;
     download)
+        cd ${mpich_dest_dir}/lib
+        /bin/rm -f libmpi.so* libmpi.a
+        sleep 180
         cd ${mpich_dest_dir}
         tar -xf $CACHE_DIR/cray-mpich-${CRAY_MPICH_VERSION}-amd.tar
         cd lib
         mv libmpi_amd.so.12.0.0 libmpi.so.${MPICH_SO_VERSION}
+        patchelf --set-soname libmpi.so.12 libmpi.so.${MPICH_SO_VERSION}
+        mv libmpi_amd.a libmpi.a
         ;;
     *)
         echo "Internal error: Unknown MPICH_SYSTEM_TYPE: $MPICH_SYSTEM_TYPE" >&2
@@ -223,8 +230,8 @@ case "$MPICH_SYSTEM_TYPE" in
 esac
 
 cd ${mpich_dest_dir}/lib 
-#ln -s libmpi.so.${MPICH_SO_VERSION} libmpi.so.12
-#ln -s libmpi.so.${MPICH_SO_VERSION} libmpi.so
+ln -s libmpi.so.${MPICH_SO_VERSION} libmpi.so.12
+ln -s libmpi.so.${MPICH_SO_VERSION} libmpi.so
 ln -s libmpi_gtl_hsa.so.0.1.0 libmpi_gtl_hsa.so.0
 ln -s libmpi_gtl_hsa.so.0.1.0 libmpi_gtl_hsa.so
 sed -e "s|prefix=.*|prefix=${mpich_dest_dir}|" -i pkgconfig/cray-gtl-hsa.pc
