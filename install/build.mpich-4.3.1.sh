@@ -2,6 +2,7 @@
 #set -x
 
 MPICH_SO_VERSION="${MPICH_SO_VERSION:-12.5.1}" # Version of the .so files installed with this MPI version.
+PATCHELF="${PATCHELF:-patchelf}" # Make sure the variable is initialised.
 
 if [[ -z $mpich_therock_version ]]; then
         echo "Error: MPICH version name has not been set."
@@ -220,7 +221,7 @@ case "$MPICH_SYSTEM_TYPE" in
         tar -xf $CACHE_DIR/cray-mpich-${CRAY_MPICH_VERSION}-amd.tar
         cd lib
         mv libmpi_amd.so.12.0.0 libmpi.so.${MPICH_SO_VERSION}
-        patchelf --set-soname libmpi.so.12 libmpi.so.${MPICH_SO_VERSION}
+        $PATCHELF --set-soname libmpi.so.12 libmpi.so.${MPICH_SO_VERSION}
         mv libmpi_amd.a libmpi.a
         ;;
     *)
